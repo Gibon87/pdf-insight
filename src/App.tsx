@@ -69,7 +69,7 @@ export function App() {
         fileName: file.name,
         pagesCount: pdfData.pagesCount,
         text: pdfData.text,
-        userApiKey: userApiKey || undefined,
+        userApiKey: userApiKey || sessionStorage.getItem('pdf_insight_user_api_key') || undefined,
       });
 
       // Step 3: Validation complete

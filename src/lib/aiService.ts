@@ -1,4 +1,3 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { PdfInsightSchema } from './zodSchema';
 import { PdfInsightResult } from '../types';
 import { SYSTEM_PROMPT, buildAnalysisPrompt } from './promptBuilder';
@@ -50,7 +49,7 @@ export async function analyzeDocumentText(options: AnalysisOptions): Promise<Pdf
       
       if (attempt === maxAttempts) {
         throw new Error(
-          `Błąd analizy dokumentu (próba ${attempt}/${maxAttempts}): Nie udało się uzyskać poprawnych danych z AI. (${lastError.message})`
+          `Błąd analizy dokumentu (próba ${attempt}/${maxAttempts}): ${lastError.message}`
         );
       }
     }
@@ -62,14 +61,14 @@ export async function analyzeDocumentText(options: AnalysisOptions): Promise<Pdf
 async function fetchRawAiResponse(options: AnalysisOptions, isRetry: boolean): Promise<string> {
   const { fileName, pagesCount, text, userApiKey, customApiUrl } = options;
   const apiUrl = customApiUrl || import.meta.env.VITE_API_URL;
-  const envApiKey = userApiKey || import.meta.env.VITE_GEMINI_API_KEY;
+  const envApiKey = userApiKey?.trim() || import.meta.env.VITE_GEMINI_API_KEY?.trim();
 
   let prompt = buildAnalysisPrompt(fileName, pagesCount, text);
   if (isRetry) {
     prompt += '\n\nUWAGA: Poprzednia odpowiedź zawierała błędy formatowania. Zwróć WYŁĄCZNIE czysty, prawidłowy obiekt JSON zgodny ze schematem.';
   }
 
-  // 1. If backend proxy URL is configured and valid, use backend proxy API
+  // 1. If backend proxy URL is configured and user didn't override key, use proxy API
   if (apiUrl && !userApiKey) {
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -96,24 +95,61 @@ async function fetchRawAiResponse(options: AnalysisOptions, isRetry: boolean): P
     return JSON.stringify(data.result);
   }
 
-  // 2. Direct Gemini API call (if user provided key or fallback)
+  // 2. Direct Gemini API call (if user provided key or env fallback)
   if (!envApiKey) {
     throw new Error(
       'Brak klucza API. Ustaw zmienną VITE_API_URL dla serwera proxy lub wprowadź własny klucz Google Gemini API w ustawieniach aplikacji.'
     );
   }
 
-  const genAI = new GoogleGenerativeAI(envApiKey);
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
-    systemInstruction: SYSTEM_PROMPT,
-    generationConfig: {
-      responseMimeType: 'application/json',
-      temperature: 0.1,
-    },
-  });
+  // Try gemini-1.5-flash first, fallback to gemini-2.0-flash
+  const models = ['gemini-1.5-flash', 'gemini-2.0-flash'];
+  let lastRestError = '';
 
-  const result = await model.generateContent(prompt);
-  const responseText = result.response.text();
-  return responseText;
+  for (const modelName of models) {
+    try {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(envApiKey)}`;
+      
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: prompt }],
+            },
+          ],
+          systemInstruction: {
+            parts: [{ text: SYSTEM_PROMPT }],
+          },
+          generationConfig: {
+            responseMimeType: 'application/json',
+            temperature: 0.1,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const errorJson = await response.json().catch(() => null);
+        const errMsg = errorJson?.error?.message || `Błąd HTTP ${response.status}`;
+        lastRestError = `[Gemini API - ${modelName}]: ${errMsg}`;
+        continue; // Try next model if available
+      }
+
+      const data = await response.json();
+      const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (!rawText) {
+        throw new Error('Otrzymano pustą odpowiedź z Gemini API.');
+      }
+
+      return rawText;
+    } catch (err: unknown) {
+      lastRestError = err instanceof Error ? err.message : String(err);
+    }
+  }
+
+  throw new Error(lastRestError || 'Nie udało się połączyć z API Google Gemini.');
 }

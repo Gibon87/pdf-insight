@@ -10,7 +10,7 @@ import { HistoryDrawer } from './components/HistoryDrawer';
 import { ApiSettingsModal } from './components/ApiSettingsModal';
 
 import { extractTextFromPdf } from './lib/pdfExtractor';
-import { analyzeDocumentText } from './lib/aiService';
+import { analyzeDocumentText, SAMPLE_CONTRACT_RESULT } from './lib/aiService';
 import { getHistory, saveToHistory, deleteHistoryItem, clearHistory } from './lib/historyStorage';
 import { AnalysisStatus, HistoryItem, PdfInsightResult, ProcessedPdf } from './types';
 import { LayoutDashboard, FileJson, Sparkles } from 'lucide-react';
@@ -114,6 +114,14 @@ export function App() {
     setErrorMessage(null);
   };
 
+  const handleLoadDemo = () => {
+    setResult(SAMPLE_CONTRACT_RESULT);
+    setCurrentFile(new File([], SAMPLE_CONTRACT_RESULT.document.fileName));
+    setStatus('success');
+    saveToHistory(SAMPLE_CONTRACT_RESULT.document.fileName, 568912, SAMPLE_CONTRACT_RESULT);
+    setHistory(getHistory());
+  };
+
   return (
     <div className="min-h-screen flex flex-col font-sans">
       <Header
@@ -145,7 +153,7 @@ export function App() {
               </p>
             </div>
 
-            <UploadZone onFileSelect={processFilePipeline} />
+            <UploadZone onFileSelect={processFilePipeline} onSelectDemo={handleLoadDemo} />
             <SecurityNotice />
           </div>
         )}
@@ -161,6 +169,7 @@ export function App() {
             message={errorMessage || 'Błąd przetwarzania.'}
             onRetry={() => currentFile && processFilePipeline(currentFile)}
             onOpenSettings={() => setIsSettingsOpen(true)}
+            onLoadDemoMode={handleLoadDemo}
           />
         )}
 

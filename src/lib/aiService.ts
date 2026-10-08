@@ -102,8 +102,15 @@ async function fetchRawAiResponse(options: AnalysisOptions, isRetry: boolean): P
     );
   }
 
-  // Try gemini-1.5-flash first, fallback to gemini-2.0-flash
-  const models = ['gemini-1.5-flash', 'gemini-2.0-flash'];
+  // List of fallback models supported by Google AI Studio
+  const models = [
+    'gemini-1.5-flash-latest',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash-002',
+    'gemini-1.5-flash-001',
+    'gemini-1.5-flash',
+    'gemini-1.5-pro'
+  ];
   let lastRestError = '';
 
   for (const modelName of models) {
@@ -134,8 +141,8 @@ async function fetchRawAiResponse(options: AnalysisOptions, isRetry: boolean): P
       if (!response.ok) {
         const errorJson = await response.json().catch(() => null);
         const errMsg = errorJson?.error?.message || `Błąd HTTP ${response.status}`;
-        lastRestError = `[Gemini API - ${modelName}]: ${errMsg}`;
-        continue; // Try next model if available
+        lastRestError = `[Google Gemini API (${modelName})]: ${errMsg}`;
+        continue; // Try next model fallback
       }
 
       const data = await response.json();

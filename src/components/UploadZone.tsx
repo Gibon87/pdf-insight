@@ -3,13 +3,14 @@ import { UploadCloud, FileText, AlertTriangle, CheckCircle2, ArrowRight } from '
 
 interface UploadZoneProps {
   onFileSelect: (file: File) => void;
+  onSelectDemo?: () => void;
   disabled?: boolean;
 }
 
 const MAX_FILE_SIZE_MB = 10;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
-export const UploadZone: React.FC<UploadZoneProps> = ({ onFileSelect, disabled }) => {
+export const UploadZone: React.FC<UploadZoneProps> = ({ onFileSelect, onSelectDemo, disabled }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -127,18 +128,29 @@ export const UploadZone: React.FC<UploadZoneProps> = ({ onFileSelect, disabled }
       )}
 
       {/* Demo helper quick trigger */}
-      <div className="flex items-center justify-between p-4 glass-card rounded-xl border border-slate-800/80 text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-4 glass-card rounded-xl border border-slate-800/80 text-xs">
         <div className="flex items-center gap-2 text-slate-400">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>Posiadasz plik testowy umowy? Wgraj <code className="bg-slate-800 px-1.5 py-0.5 rounded text-slate-200">Test_PDF_Insight_umowa_14-2026.pdf</code></span>
+          <span>Przetestuj z przykładowym plikiem rekrutacyjnym <code className="bg-slate-800 px-1.5 py-0.5 rounded text-slate-200">Test_PDF_Insight_umowa_14-2026.pdf</code></span>
         </div>
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className="text-emerald-400 hover:text-emerald-300 font-medium flex items-center gap-1"
-        >
-          Wybierz <ArrowRight className="w-3.5 h-3.5" />
-        </button>
+        <div className="flex items-center gap-2">
+          {onSelectDemo && (
+            <button
+              type="button"
+              onClick={onSelectDemo}
+              className="px-3 py-1.5 bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 rounded-lg border border-emerald-500/30 font-semibold transition"
+            >
+              Wyświetl Tryb Demo ✨
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="text-slate-300 hover:text-white font-medium flex items-center gap-1 px-2 py-1"
+          >
+            Wybierz plik <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
     </div>
   );

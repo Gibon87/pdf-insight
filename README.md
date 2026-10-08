@@ -1,7 +1,7 @@
 # 📄 PDF Insight — Inteligentna Ekstrakcja i Analiza Dokumentów PDF
 
-[![CI/CD GitHub Actions](https://github.com/mateusz/greyWolfgroup/actions/workflows/deploy.yml/badge.svg)](https://github.com/mateusz/greyWolfgroup/actions/workflows/deploy.yml)
-[![Demo na GitHub Pages](https://img.shields.io/badge/Demo-GitHub%20Pages-emerald?style=flat&logo=github)](https://mateusz.github.io/greyWolfgroup/)
+[![CI/CD GitHub Actions](https://github.com/Gibon87/pdf-insight/actions/workflows/deploy.yml/badge.svg)](https://github.com/Gibon87/pdf-insight/actions/workflows/deploy.yml)
+[![Demo na GitHub Pages](https://img.shields.io/badge/Demo-GitHub%20Pages-emerald?style=flat&logo=github)](https://gibon87.github.io/pdf-insight/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Vitest](https://img.shields.io/badge/Tests-Vitest%20Passed-green?logo=vitest)](https://vitest.dev/)
 
@@ -11,8 +11,8 @@
 
 ## 🔗 Linki do Projektu
 
-- **Live Demo (GitHub Pages)**: [https://mateusz.github.io/greyWolfgroup/](https://mateusz.github.io/greyWolfgroup/)
-- **Publiczne Repozytorium GitHub**: [https://github.com/mateusz/greyWolfgroup](https://github.com/mateusz/greyWolfgroup)
+- **Live Demo (GitHub Pages)**: [https://gibon87.github.io/pdf-insight/](https://gibon87.github.io/pdf-insight/)
+- **Publiczne Repozytorium GitHub**: [https://github.com/Gibon87/pdf-insight](https://github.com/Gibon87/pdf-insight)
 - **Rejestr Prac z AI**: [AI_LOG.md](AI_LOG.md)
 
 ---
@@ -81,8 +81,8 @@
 
 ### Krok 1: Klonowanie repozytorium
 ```bash
-git clone https://github.com/mateusz/greyWolfgroup.git
-cd greyWolfgroup
+git clone https://github.com/Gibon87/pdf-insight.git
+cd pdf-insight
 ```
 
 ### Krok 2: Instalacja zależności

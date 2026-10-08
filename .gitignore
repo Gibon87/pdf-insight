@@ -24,3 +24,7 @@ pnpm-debug.log*
 # OS metadata
 .DS_Store
 Thumbs.db
+
+# Recruitment PDF files (not needed in repo)
+Test_PDF_Insight_umowa_14-2026.pdf
+Brief_Vibe_Coder_PDF_Insight.pdf

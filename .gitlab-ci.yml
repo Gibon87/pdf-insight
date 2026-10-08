@@ -30,8 +30,6 @@ build:
   artifacts:
     paths:
       - dist/
-  variables:
-    VITE_API_URL: $VITE_API_URL
 
 pages:
   stage: deploy

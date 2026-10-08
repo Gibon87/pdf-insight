@@ -1,0 +1,47 @@
+image: node:20
+
+stages:
+  - test
+  - build
+  - deploy
+
+cache:
+  key:
+    files:
+      - package-lock.json
+  paths:
+    - node_modules/
+
+lint-and-test:
+  stage: test
+  script:
+    - npm ci
+    - npx tsc --noEmit
+    - npm run lint
+    - npm test
+
+build:
+  stage: build
+  needs:
+    - lint-and-test
+  script:
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+  variables:
+    VITE_API_URL: $VITE_API_URL
+
+pages:
+  stage: deploy
+  needs:
+    - build
+  script:
+    - mkdir -p public
+    - cp -r dist/* public/
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
